@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('professionals', function (Blueprint $table) {
             $table->id();
-            $table->enum('is_employed', ['yes', 'no']);
-            $table->enum('work_nature', ['public sector', 'private sector', 'unstable']);
-            $table->string('current_job');
-            $table->decimal('monthly_income', 10, 2);
+            $table->enum('is_employed', ['yes', 'no'])->nullable();
+            $table->enum('work_nature', ['public sector', 'private sector', 'unstable'])->nullable();
+            $table->string('current_job')->nullable();
+            $table->decimal('monthly_income', 10, 2)->nullable();
             $table->timestamps();
         });
     }

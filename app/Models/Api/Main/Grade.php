@@ -23,4 +23,7 @@ class Grade extends Model
     {
         return number_format($this->value, 2);
     }
+
+    public function evaluate(){}
+
 }

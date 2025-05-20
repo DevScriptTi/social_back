@@ -10,13 +10,10 @@ class Applicant extends Model
     protected $fillable = [
         'name', 'last', 'date_of_birth', 'place_of_birth',
         'national_id_number', 'residence_place', 'email', 'phone',
-        'gender', 'status', 'children_number', 'key', 'committee_id'
+        'gender', 'status', 'children_number', 'committee_id'
     ];
 
-    public function getRouteKeyName()
-    {
-        return 'national_id_number';
-    }
+
 
     public function application()
     {

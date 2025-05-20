@@ -9,15 +9,12 @@ class SuperAdmin extends Model
 {
     protected $fillable = ['username', 'name', 'last', 'is_super'];
 
-    public function getRouteKeyName()
-    {
-        return 'username';
-    }
 
     public function photo()
     {
         return $this->morphOne(\App\Models\Api\Main\Photo::class, 'photoable');
     }
+
     public function key(){
         return $this->morphOne(Key::class,"keyable");
     }

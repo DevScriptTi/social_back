@@ -24,89 +24,280 @@ use Illuminate\Support\Facades\Hash;
 class CommitteesWithRelationsSeeder extends Seeder
 {
     private $algerianFirstNames = [
-        'Mohamed', 'Ahmed', 'Ali', 'Youssef', 'Abdellah', 'Mustapha', 'Karim', 'Samir',
-        'Adel', 'Nassim', 'Farid', 'Rachid', 'Said', 'Hakim', 'Bilal', 'Amine',
-        'Fatima', 'Amina', 'Khadija', 'Zohra', 'Yasmina', 'Samira', 'Nadia', 'Leila',
-        'Soraya', 'Djamila', 'Hafsa', 'Meriem', 'Salima', 'Rym', 'Nawel', 'Imane',
-        'Lamia', 'Sabrina', 'Nour', 'Hana', 'Souad', 'Malika', 'Asma', 'Ikram',
-        'Yasmine', 'Lina', 'Aya', 'Sara', 'Ines', 'Amira', 'Rania', 'Nesrine',
-        'Hiba', 'Warda', 'Aicha', 'Soumia', 'Nourhane', 'Selma', 'Houda', 'Ferial',
-        'Nabila', 'Latifa', 'Chahinez', 'Mounia', 'Siham', 'Fadila', 'Naima', 'Zineb',
-        'Amel', 'Ilhem', 'Kenza', 'Lynda', 'Maya', 'Nouria', 'Rim', 'Sarra',
-        'Sonia', 'Yamina', 'Zakia', 'Ahlam', 'Amina', 'Baya', 'Dounia', 'Fatiha',
-        'Ghania', 'Hind', 'Jamila', 'Karima', 'Lamia', 'Meriem', 'Nadia', 'Noura',
-        'Rachida', 'Samia', 'Souhila', 'Wissam', 'Yasmina', 'Zohra', 'Amani', 'Anissa'
+        'Mohamed',
+        'Ahmed',
+        'Ali',
+        'Youssef',
+        'Abdellah',
+        'Mustapha',
+        'Karim',
+        'Samir',
+        'Adel',
+        'Nassim',
+        'Farid',
+        'Rachid',
+        'Said',
+        'Hakim',
+        'Bilal',
+        'Amine',
+        'Fatima',
+        'Amina',
+        'Khadija',
+        'Zohra',
+        'Yasmina',
+        'Samira',
+        'Nadia',
+        'Leila',
+        'Soraya',
+        'Djamila',
+        'Hafsa',
+        'Meriem',
+        'Salima',
+        'Rym',
+        'Nawel',
+        'Imane',
+        'Lamia',
+        'Sabrina',
+        'Nour',
+        'Hana',
+        'Souad',
+        'Malika',
+        'Asma',
+        'Ikram',
+        'Yasmine',
+        'Lina',
+        'Aya',
+        'Sara',
+        'Ines',
+        'Amira',
+        'Rania',
+        'Nesrine',
+        'Hiba',
+        'Warda',
+        'Aicha',
+        'Soumia',
+        'Nourhane',
+        'Selma',
+        'Houda',
+        'Ferial',
+        'Nabila',
+        'Latifa',
+        'Chahinez',
+        'Mounia',
+        'Siham',
+        'Fadila',
+        'Naima',
+        'Zineb',
+        'Amel',
+        'Ilhem',
+        'Kenza',
+        'Lynda',
+        'Maya',
+        'Nouria',
+        'Rim',
+        'Sarra',
+        'Sonia',
+        'Yamina',
+        'Zakia',
+        'Ahlam',
+        'Amina',
+        'Baya',
+        'Dounia',
+        'Fatiha',
+        'Ghania',
+        'Hind',
+        'Jamila',
+        'Karima',
+        'Lamia',
+        'Meriem',
+        'Nadia',
+        'Noura',
+        'Rachida',
+        'Samia',
+        'Souhila',
+        'Wissam',
+        'Yasmina',
+        'Zohra',
+        'Amani',
+        'Anissa'
     ];
 
     private $algerianLastNames = [
-        'Benzema', 'Boukherroub', 'Chaoui', 'Dahmani', 'Fellah', 'Gacem', 'Hamdi',
-        'Iberaken', 'Khelifi', 'Lounis', 'Mansouri', 'Nait', 'Ouali', 'Rahmani',
-        'Saadi', 'Taleb', 'Zitouni', 'Abbas', 'Bouchene', 'Cherif', 'Draoui',
-        'Ait', 'Belaid', 'Bendjebbar', 'Bensalem', 'Boudjemaa', 'Chabane', 'Djebbar',
-        'Fekir', 'Guediri', 'Haddad', 'Ibrahim', 'Kaci', 'Lahmar', 'Mahdi', 'Nacer',
-        'Omar', 'Rabah', 'Salah', 'Tarek', 'Zaki', 'Abdelkader', 'Bachir', 'Belkacem',
-        'Boualem', 'Chikh', 'Djamel', 'Farouk', 'Ghani', 'Hamza', 'Ismail', 'Kamel',
-        'Lotfi', 'Mehdi', 'Nadir', 'Othmane', 'Rafik', 'Slimane', 'Tahar', 'Walid',
-        'Yacine', 'Zahir', 'Ammar', 'Bachir', 'Belhadj', 'Bouaziz', 'Charef', 'Djebbour',
-        'Fethi', 'Goucem', 'Halim', 'Ilyes', 'Khaled', 'Lyes', 'Mokhtar', 'Nourredine',
-        'Oussama', 'Riad', 'Sofiane', 'Tewfik', 'Wassim', 'Younes', 'Zoubir', 'Abdelhak',
-        'Belaid', 'Bendjelloul', 'Benslimane', 'Boukhari', 'Chikhi', 'Djebli', 'Fares'
+        'Benzema',
+        'Boukherroub',
+        'Chaoui',
+        'Dahmani',
+        'Fellah',
+        'Gacem',
+        'Hamdi',
+        'Iberaken',
+        'Khelifi',
+        'Lounis',
+        'Mansouri',
+        'Nait',
+        'Ouali',
+        'Rahmani',
+        'Saadi',
+        'Taleb',
+        'Zitouni',
+        'Abbas',
+        'Bouchene',
+        'Cherif',
+        'Draoui',
+        'Ait',
+        'Belaid',
+        'Bendjebbar',
+        'Bensalem',
+        'Boudjemaa',
+        'Chabane',
+        'Djebbar',
+        'Fekir',
+        'Guediri',
+        'Haddad',
+        'Ibrahim',
+        'Kaci',
+        'Lahmar',
+        'Mahdi',
+        'Nacer',
+        'Omar',
+        'Rabah',
+        'Salah',
+        'Tarek',
+        'Zaki',
+        'Abdelkader',
+        'Bachir',
+        'Belkacem',
+        'Boualem',
+        'Chikh',
+        'Djamel',
+        'Farouk',
+        'Ghani',
+        'Hamza',
+        'Ismail',
+        'Kamel',
+        'Lotfi',
+        'Mehdi',
+        'Nadir',
+        'Othmane',
+        'Rafik',
+        'Slimane',
+        'Tahar',
+        'Walid',
+        'Yacine',
+        'Zahir',
+        'Ammar',
+        'Bachir',
+        'Belhadj',
+        'Bouaziz',
+        'Charef',
+        'Djebbour',
+        'Fethi',
+        'Goucem',
+        'Halim',
+        'Ilyes',
+        'Khaled',
+        'Lyes',
+        'Mokhtar',
+        'Nourredine',
+        'Oussama',
+        'Riad',
+        'Sofiane',
+        'Tewfik',
+        'Wassim',
+        'Younes',
+        'Zoubir',
+        'Abdelhak',
+        'Belaid',
+        'Bendjelloul',
+        'Benslimane',
+        'Boukhari',
+        'Chikhi',
+        'Djebli',
+        'Fares'
     ];
 
     private $jobs = [
-        'Enseignant', 'Médecin', 'Ingénieur', 'Infirmier', 'Comptable',
-        'Administrateur', 'Technicien', 'Secrétaire', 'Chauffeur', 'Ouvrier'
+        'Enseignant',
+        'Médecin',
+        'Ingénieur',
+        'Infirmier',
+        'Comptable',
+        'Administrateur',
+        'Technicien',
+        'Secrétaire',
+        'Chauffeur',
+        'Ouvrier'
     ];
 
     private $publicSectorJobs = [
-        'Fonctionnaire', 'Employé de mairie', 'Agent administratif',
-        'Enseignant', 'Policier', 'Militaire'
+        'Fonctionnaire',
+        'Employé de mairie',
+        'Agent administratif',
+        'Enseignant',
+        'Policier',
+        'Militaire'
     ];
     private $privateSectorJobs = [
-        'Employé de banque', 'Agent de sécurité', 'Vendeur', 'Serveur',
-        'Technicien de maintenance', 'Commercial'
+        'Employé de banque',
+        'Agent de sécurité',
+        'Vendeur',
+        'Serveur',
+        'Technicien de maintenance',
+        'Commercial'
     ];
 
-    private function getRandomName(){
-        return $this->algerianFirstNames[array_rand($this->algerianFirstNames)] ;
+    private function getRandomName()
+    {
+        return $this->algerianFirstNames[array_rand($this->algerianFirstNames)];
     }
-    private function getRandomLast(){
+    private function getRandomLast()
+    {
         return $this->algerianLastNames[array_rand($this->algerianLastNames)];
     }
-    private function getRandomJob(){
+    private function getRandomJob()
+    {
         return $this->jobs[array_rand($this->jobs)];
     }
-    private function getRandomPublicSectorJob(){
+    private function getRandomPublicSectorJob()
+    {
         return $this->publicSectorJobs[array_rand($this->publicSectorJobs)];
     }
-    private function getRandomPrivateSectorJob(){
+    private function getRandomPrivateSectorJob()
+    {
         return $this->privateSectorJobs[array_rand($this->privateSectorJobs)];
     }
-    private function getRandomDateOfBirth(){
+    private function getRandomDateOfBirth()
+    {
         return now()->subYears(random_int(25, 60))->format('Y-m-d');
     }
-    private function getRandomPhoneNumber(){
+    private function getRandomPhoneNumber()
+    {
         return '+213' . random_int(600000000, 699999999);
     }
-    private function getRandomAddress(){
+    private function getRandomAddress()
+    {
         return 'Alger, ' . $this->getRandomName() . ' Street, ' . random_int(1, 100);
     }
-    private function getRandomEmail($name, $last){
-        return strtolower(str_replace(' ', '_', $name.' '.$last)) . '@example.com';
+    private function getRandomEmail($name, $last)
+    {
+        return strtolower(str_replace(' ', '_', $name . ' ' . $last)) . '@example.com';
     }
-    private function getRandomNationalId(){
+    private function getRandomNationalId()
+    {
         return random_int(10000000, 99999999);
     }
-    private function getRandomSalary(){
+    private function getRandomSalary()
+    {
         return random_int(30000, 100000);
     }
 
 
-    public function run(){
+    public function run()
+    {
         $name = $this->getRandomName();
         $last = $this->getRandomLast();
         $superAdmin = SuperAdmin::create([
-            'username' => strtolower(str_replace(' ', '_',$name.' '.$last.' '. str()->random(5))),
+            'username' => strtolower(str_replace(' ', '_', $name . ' ' . $last . ' ' . str()->random(5))),
             'name' => $name,
             'last' => $last,
             'is_super' => true,
@@ -115,16 +306,16 @@ class CommitteesWithRelationsSeeder extends Seeder
             'value' => str()->random(10),
         ]);
         $superAdmin->photo()->create([
-            'path' => 'photos/'.$superAdmin->username.'/' . str()->random(10) . '.jpg',
+            'path' => 'photos/' . $superAdmin->username . '/' . str()->random(10) . '.jpg',
         ]);
         $dairas = Daira::all();
         foreach ($dairas as $daira) {
             // create committees
-            for ($i = 0; $i < random_int(0,1); $i++) {
+            for ($i = 0; $i < random_int(0, 1); $i++) {
                 $name = $this->getRandomName();
                 $last = $this->getRandomLast();
                 $committee = Committee::create([
-                    'username' => strtolower(str_replace(' ', '_',$name.' '.$last.'_' . str()->random(5))),
+                    'username' => strtolower(str_replace(' ', '_', $name . ' ' . $last . '_' . str()->random(5))),
                     'name' => $name,
                     'last' => $last,
                     'date_of_birth' => $this->getRandomDateOfBirth(),
@@ -134,7 +325,7 @@ class CommitteesWithRelationsSeeder extends Seeder
                     'value' => str()->random(10),
                 ]);
                 $committee->photo()->create([
-                    'path' => 'photos/'.$committee->username.'/' . str()->random(10) . '.jpg',
+                    'path' => 'photos/' . $committee->username . '/' . str()->random(10) . '.jpg',
                 ]);
 
                 // employees creation
@@ -152,54 +343,10 @@ class CommitteesWithRelationsSeeder extends Seeder
                         'value' => str()->random(10),
                     ]);
                     $employe->photo()->create([
-                        'path' => 'photos/'.$employe->username.'/' . str()->random(10) . '.jpg',
+                        'path' => 'photos/' . $employe->username . '/' . str()->random(10) . '.jpg',
                     ]);
-
-
                 }
-
-                // applicants creations
-                for ($j = 0; $j < random_int(100, 777); $j++) {
-                    $name = $this->getRandomName();
-                    $last = $this->getRandomLast();
-                    $applicant = $committee->applicants()->create([
-                        'name' => $name,
-                        'last' => $last,
-                        'date_of_birth' => $this->getRandomDateOfBirth(),
-                        'place_of_birth' => $this->getRandomAddress(),
-                        'national_id_number' => $this->getRandomNationalId(),
-                        'residence_place' => $this->getRandomAddress(),
-                        'email' => $this->getRandomEmail($name, $last),
-                        'phone' => $this->getRandomPhoneNumber(),
-                        'gender' => random_int(0, 1) ? 'male' : 'female',
-                        'status' => random_int(0, 1) ? 'married' : 'single',
-                        'children_number' => random_int(0, 5),
-                        'key' => str()->random(10),
-                        'committee_id' => $committee->id,
-                    ]);
-                    $applicant->photo()->create([
-                        'path' => 'photos/'.$applicant->national_id_number.'/' . str()->random(10) . '.jpg',
-                    ]);
-                    if ($applicant->status === 'married') {
-                        $wifeName = $this->getRandomName();
-                        $wifeLast = $this->getRandomLast();
-                        $wife = $applicant->wife()->create([
-                            'name' => $wifeName,
-                            'last' => $wifeLast,
-                            'date_of_birth' => $this->getRandomDateOfBirth(),
-                            'place_of_birth' => $this->getRandomAddress(),
-                            'national_id_number' => $this->getRandomNationalId(),
-                            'residence_place' => $this->getRandomAddress(),
-                        ]);
-                        $wife->photo()->create([
-                            'path' => 'photos/'.$wife->national_id_number.'/' . str()->random(10) . '.jpg',
-                        ]);
-                    }
-                }
-
             }
         }
-        
     }
-
 }

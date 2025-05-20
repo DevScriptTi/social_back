@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->enum('status', ['pending', 'denied', 'on-review', 'accepted', 'not-classed']);
-            $table->string('classment');
-            $table->string('grade');
+            $table->string('classment')->nullable();
+            $table->string('key', 10)->unique();
+            $table->string('grade')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
         });

@@ -29,20 +29,14 @@ class User extends Authenticatable
         'role'
     ];
 
-    public function key(){
-        return $this->belongsTo(Key::class);
-    }
+    
     protected $casts = [
         'password'=> 'hashed'
     ];
-
-    public function isGurdian(){
-        return $this->key && $this->key->keyable_type === 'gurdian';
+    
+    public function key(){
+        return $this->belongsTo(Key::class);
     }
-
-    public function userProfile(){
-        $key = $this->key->keyable_type;
-
-    }
+   
 
 }

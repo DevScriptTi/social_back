@@ -44,9 +44,9 @@ return new class extends Migration
 
         // add_foreign_keys_to_applications.php
         Schema::table('applications', function (Blueprint $table) {
+            $table->foreignId('committee_id')->nullable()->constrained('committees')->onDelete('cascade');
             $table->foreignId('applicant_id')->constrained('applicants')->onDelete('cascade');
-            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
-            $table->foreignId('social_id')->constrained('socials')->onDelete('cascade');
+            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('cascade');
         });
 
         // add_foreign_keys_to_professionals.php
@@ -80,9 +80,7 @@ return new class extends Migration
         });
 
         // add_foreign_keys_to_socials.php
-        Schema::table('socials', function (Blueprint $table) {
-            $table->foreignId('committee_id')->constrained('committees')->onDelete('cascade');
-        });
+
 
     }
 

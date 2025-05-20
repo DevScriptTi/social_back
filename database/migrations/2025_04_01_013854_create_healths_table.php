@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('healths', function (Blueprint $table) {
             $table->id();
-            $table->enum('chronic_illness_disability', ['yes', 'no']);
-            $table->string('type');
-            $table->enum('family_member_illness', ['yes', 'no']);
-            $table->string('relationship');
+            $table->enum('chronic_illness_disability', ['yes', 'no'])->nullable();
+            $table->string('type')->nullable();
+            $table->enum('family_member_illness', ['yes', 'no'])->nullable();
+            $table->string('relationship')->nullable();
             $table->timestamps();
         });
     }

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female']);
             $table->enum('status', ['single', 'married', 'divorced', 'widowed']);
             $table->unsignedSmallInteger('children_number');
-            $table->string('key', 10)->unique();
+
             $table->timestamps();
         });
     }

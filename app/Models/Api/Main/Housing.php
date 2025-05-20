@@ -14,10 +14,7 @@ class Housing extends Model
         'application_id'
     ];
 
-    public function getRouteKeyName()
-    {
-        return 'id';
-    }
+
 
     public function application()
     {
@@ -28,9 +25,11 @@ class Housing extends Model
     public function housingTypeLabel()
     {
         return [
-            'rental' => 'إيجار',
-            'owned' => 'ملكية',
-            'family housing' => 'سكن عائلي'
+            'non_residential_place' => 'محل غير مخصص للسكن',
+            'collapsing_communal' => 'سكن مهدد بالانهيار ',
+            'collapsing_private' => 'سكن مهدد بالانهيار - ملك فردي',
+            'with_relatives_or_rented' => 'سكن عند الأقارب أو عند الغير أو سكن مؤجر',
+            'functional_housing' => 'سكن وظيفي	'
         ][$this->current_housing_type] ?? $this->current_housing_type;
     }
 }

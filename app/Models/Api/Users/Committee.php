@@ -5,6 +5,7 @@ namespace App\Models\Api\Users;
 use App\Models\Api\Core\Daira;
 use App\Models\Api\Core\Key;
 use App\Models\Api\Main\Applicant;
+use App\Models\Api\Main\Application;
 use App\Models\Api\Main\Photo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -15,14 +16,15 @@ class Committee extends Model
         'username', 'name', 'last', 'date_of_birth', 'daira_id'
     ];
 
-    public function getRouteKeyName()
-    {
-        return 'username';
-    }
 
     public function daira()
     {
         return $this->belongsTo(Daira::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
     }
 
     public function applicants()

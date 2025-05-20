@@ -13,9 +13,15 @@ return new class extends Migration
     {
         Schema::create('housings', function (Blueprint $table) {
             $table->id();
-            $table->enum('current_housing_type', ['rental', 'owned', 'family housing']);
-            $table->enum('previously_benefited', ['yes', 'no']);
-            $table->decimal('housing_area', 8, 2);
+            $table->enum('current_housing_type', [
+                'non_residential_place',
+                'collapsing_communal',
+                'collapsing_private',
+                'with_relatives_or_rented',
+                'functional_housing'
+            ])->nullable();
+            $table->enum('previously_benefited', ['yes', 'no'])->nullable();
+            $table->decimal('housing_area', 8, 2)->nullable();
             $table->text('other_properties')->nullable();
             $table->timestamps();
         });

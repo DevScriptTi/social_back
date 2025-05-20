@@ -13,19 +13,19 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->id();
-            $table->string('birth_certificate');
-            $table->string('spouse_birth_certificate');
-            $table->string('family_individual_certificate');
-            $table->string('applicant_national_id');
-            $table->string('spouse_national_id');
-            $table->string('residence_certificate');
-            $table->string('employment_unemployment_certificate');
-            $table->string('spouse_employment_certificate');
-            $table->string('spouse_salary_certificate');
-            $table->string('applicant_salary_certificate');
-            $table->string('non_real_estate_ownership_certificate');
-            $table->string('medical_certificate');
-            $table->string('death_divorce_certificate');
+            $table->string('birth_certificate')->nullable();
+            $table->string('spouse_birth_certificate')->nullable();
+            $table->string('family_individual_certificate')->nullable();
+            $table->string('applicant_national_id')->nullable();
+            $table->string('spouse_national_id')->nullable();
+            $table->string('residence_certificate')->nullable();
+            $table->string('employment_unemployment_certificate')->nullable();
+            $table->string('spouse_employment_certificate')->nullable();
+            $table->string('spouse_salary_certificate')->nullable();
+            $table->string('applicant_salary_certificate')->nullable();
+            $table->string('non_real_estate_ownership_certificate')->nullable();
+            $table->string('medical_certificate')->nullable();
+            $table->string('death_divorce_certificate')->nullable();
             $table->timestamps();
         });
     }
