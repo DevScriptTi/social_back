@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
-use App\Models\Api\Main\QrCode ;
+use App\Models\Api\Main\QrCode;
 use App\Models\Api\Users\Employee;
 
 class Application extends Model
@@ -23,6 +23,8 @@ class Application extends Model
         'applicant_id',
         'employee_id',
         'committee_id',
+        'errors',
+        'step',
     ];
 
     protected static function booted()
@@ -38,24 +40,28 @@ class Application extends Model
         });
         static::created(function ($application) {
             // Generate QR code image and store in public/qrcode
-            $fileName = 'qrcode_' . $application->id . '.png';
+            $fileName = 'qrcode_' . $application->applicant->national_id_number . '.png';
             $filePath = public_path('qrcode/' . $fileName);
 
             // Ensure the directory exists
             if (!file_exists(public_path('qrcode'))) {
-            mkdir(public_path('qrcode'), 0755, true);
+                mkdir(public_path('qrcode'), 0755, true);
             }
 
             // Generate and save the QR code image
-            QrCodeGenerator::format('png')->size(200)->generate('application:' . $application->id, $filePath);
+            QrCodeGenerator::format('png')->size(200)->generate($application->applicant->national_id_number, $filePath);
 
             QrCode::create([
-            'value' => asset('qrcode/' . $fileName),
-            'application_id' => $application->id,
+                'value' => asset('qrcode/' . $fileName),
+                'application_id' => $application->id,
             ]);
         });
     }
 
+    public function getRouteKeyName()
+    {
+        return 'key';
+    }
 
     public function employee()
     {

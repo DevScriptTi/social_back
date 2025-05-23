@@ -13,18 +13,17 @@ return new class extends Migration
     {
         Schema::create('applicants', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('last');
-            $table->date('date_of_birth');
-            $table->string('place_of_birth');
+            $table->string('name')->nullable();
+            $table->string('last')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->string('place_of_birth')->nullable();
             $table->string('national_id_number')->unique();
-            $table->string('residence_place');
-            $table->string('email');
-            $table->string('phone');
-            $table->enum('gender', ['male', 'female']);
-            $table->enum('status', ['single', 'married', 'divorced', 'widowed']);
-            $table->unsignedSmallInteger('children_number');
-
+            $table->string('residence_place')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->enum('status', ['single', 'married', 'divorced', 'widowed'])->nullable();
+            $table->unsignedSmallInteger('children_number')->nullable();
             $table->timestamps();
         });
     }

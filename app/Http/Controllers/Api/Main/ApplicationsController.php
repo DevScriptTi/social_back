@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Api\Main\Applicant;
 use App\Models\Api\Main\Application;
 use App\Models\Api\Users\Committee;
-use App\Models\User;
 use FFI\Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ApplicationsController extends Controller
@@ -33,14 +31,29 @@ class ApplicationsController extends Controller
     }
 
 
+    public function show(Application $application)
+    {
+        $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']);
+        return response()->json([
+            'application' => $application,
+        ], 200);
+    }
+
+
     public function store(Request $request)
     {
+
         $validated = $request->validate([
-            'national_id_number' => 'required|string|max:255|unique:applicants,national_id_number',
+            'national_id_number' => 'required|string|max:255',
         ]);
 
-
-
+        $applicant = Applicant::where('national_id_number', $validated['national_id_number'])->first();
+        if ($applicant) {
+            return response()->json([
+                'message' => 'applicant already exists',
+                'application' => $applicant->application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            ], 200);
+        }
 
         DB::beginTransaction();
         try {
@@ -49,11 +62,11 @@ class ApplicationsController extends Controller
                 'date' => now(),
                 'key' =>  random_int(100000, 999999),
             ]);
+            $applicant->wife()->create();
             $applicant->application->health()->create();
             $applicant->application->professional()->create();
             $applicant->application->housing()->create();
             $applicant->application->files()->create();
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -64,28 +77,19 @@ class ApplicationsController extends Controller
         }
         return response()->json([
             'message' => 'تم تقديم الطلب بنجاح',
-            'application' => $applicant->application->load(['applicant' => ['wife', 'committee']]),
+            'application' => $applicant->application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 201);
     }
 
-    public function show(Application $application)
-    {
-        $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']);
-        return response()->json([
-            'application' => $application,
-        ], 200);
-    }
-
-    public function updateCivleStatus(Request $request)
+    public function applicant(Request $request, Application $application)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'last' => 'required|string|max:255',
             'date_of_birth' => 'required|date',
             'place_of_birth' => 'required|string|max:255',
-            'national_id_number' => 'required|string|max:255|unique:applicants,national_id_number',
             'residence_place' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:applicants,email',
+            'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
             'status' => 'required|in:single,married,divorced,widowed',
@@ -101,16 +105,19 @@ class ApplicationsController extends Controller
             'wife.residence_place' => 'sometimes|required|string|max:255',
         ]);
 
-
-
         DB::beginTransaction();
         try {
-            $committee = Committee::find($validated['committee_id']);
-            $applicant = Applicant::create($validated);
-            $applicant->committee()->associate($committee);
-            $applicant->save();
+            $application->applicant()->update($validated);
+            if ($application->step <= 1) {
+                $application->step = 1;
+                $application->errors = [];
+                $application->committee_id = $validated['committee_id'];
+                $application->save();
+            }
+
             if ($wifeValidate) {
-                $applicant->wife()->create([
+                $wife = $application->applicant->wife()->first();
+                $wife->update([
                     'name' => $wifeValidate['wife']['name'],
                     'last' => $wifeValidate['wife']['last'],
                     'date_of_birth' => $wifeValidate['wife']['date_of_birth'],
@@ -119,16 +126,6 @@ class ApplicationsController extends Controller
                     'residence_place' => $wifeValidate['wife']['residence_place'],
                 ]);
             }
-            $applicant->application()->create([
-                'date' => now(),
-                'key' =>  random_int(100000, 999999),
-                'committee_id' => $committee->id,
-            ]);
-            $applicant->application->health()->create();
-            $applicant->application->professional()->create();
-            $applicant->application->housing()->create();
-            $applicant->application->files()->create();
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -139,103 +136,82 @@ class ApplicationsController extends Controller
         }
         return response()->json([
             'message' => 'تم تقديم الطلب بنجاح',
-            'application' => $applicant->application->load(['applicant' => ['wife', 'committee']]),
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 201);
     }
 
-    public function updateProfessional(Request $request)
+
+    public function professional(Request $request, Application $application)
     {
         $validated = $request->validate([
-            'is_employed' => 'sometimes|required|boolean',
+            'is_employed' => 'sometimes|required',
             'work_nature' => 'sometimes|nullable|string|max:255',
             'current_job' => 'sometimes|nullable|string|max:255',
             'monthly_income' => 'sometimes|nullable|numeric|min:0',
-            'application_id' => 'required|integer|exists:applications,id',
-            'key' => 'required|integer|exists:applications,key',
         ]);
 
-        $application = Application::where('key', $validated['key'])->first();
+        if ($application->step <= 2) {
+            $application->step = 2;
+            $application->save();
+        }
 
         $professional = $application->professional;
         $professional->update($validated);
 
         return response()->json([
             'message' => 'Professional information updated successfully.',
-            'professional' => $professional,
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
-    public function updateHousing(Request $request)
+    public function housing(Request $request, Application $application)
     {
         $validated = $request->validate([
-            'current_housing_type' => 'required|string|max:255',
-            'previously_benefited' => 'required|boolean',
-            'housing_area' => 'nullable|numeric|min:0',
-            'other_properties' => 'nullable|string|max:255',
-            'application_id' => 'required|integer|exists:applications,id',
-            'key' => 'required|integer|exists:applications,key',
+            'current_housing_type' => 'required|in:non_residential_place,collapsing_communal,collapsing_private,with_relatives_or_rented,functional_housing',
+            'previously_benefited' => 'required|in:yes,no', // Changed from boolean to enum validation
+            'housing_area' => 'nullable|numeric|min:0|max:999999.99', // Matches decimal(8,2)
+            'other_properties' => 'nullable|string', // Changed from max:255 to text
         ]);
 
-        $application = Application::where('key', $validated['key'])->first();
-
-        if (!$application) {
-            return response()->json([
-                'message' => 'Application not found.',
-            ], 404);
+        if ($application->step <= 3) {
+            $application->step = 3;
+            $application->save();
         }
-
         $housing = $application->housing;
-        $housing->update([
-            'current_housing_type' => $validated['current_housing_type'],
-            'previously_benefited' => $validated['previously_benefited'],
-            'housing_area' => $validated['housing_area'] ?? null,
-            'other_properties' => $validated['other_properties'] ?? null,
-        ]);
+        $housing->update($validated);
 
         return response()->json([
             'message' => 'Housing information updated successfully.',
-            'housing' => $housing,
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
-    public function updateHealth(Request $request)
+    public function health(Request $request, Application $application)
     {
         $validated = $request->validate([
-            'chronic_illness_disability' => 'sometimes|required|boolean',
+            'chronic_illness_disability' => 'sometimes|required|in:yes,no', // Changed from boolean to enum
             'type' => 'sometimes|nullable|string|max:255',
-            'family_member_illness' => 'sometimes|nullable|boolean',
+            'family_member_illness' => 'sometimes|nullable|in:yes,no', // Changed from boolean to enum
             'relationship' => 'sometimes|nullable|string|max:255',
-            'application_id' => 'required|integer|exists:applications,id',
-            'key' => 'required|integer|exists:applications,key',
         ]);
 
-        $application = Application::where('key', $validated['key'])->first();
-
-        if (!$application) {
-            return response()->json([
-                'message' => 'Application not found.',
-            ], 404);
+        if ($application->step <= 4) {
+            $application->step = 4;
+            $application->save();
         }
 
         $health = $application->health;
-        $health->update([
-            'chronic_illness_disability' => $validated['chronic_illness_disability'],
-            'type' => $validated['type'] ?? null,
-            'family_member_illness' => $validated['family_member_illness'] ?? null,
-            'relationship' => $validated['relationship'] ?? null,
-        ]);
+        $health->update($validated);
 
         return response()->json([
             'message' => 'Health information updated successfully.',
-            'health' => $health,
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
-    public function updateFiles(Request $request)
+    public function files(Request $request, Application $application)
     {
-        $validated = $request->validate([
-            'application_id' => 'required|integer|exists:applications,id',
-            'key' => 'required|integer|exists:applications,key',
+        $request->validate([
             'birth_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'spouse_birth_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'family_individual_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -251,13 +227,6 @@ class ApplicationsController extends Controller
             'death_divorce_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
-        $application = Application::where('key', $validated['key'])->first();
-
-        if (!$application) {
-            return response()->json([
-                'message' => 'Application not found.',
-            ], 404);
-        }
 
         $files = $application->files;
         $fields = [
@@ -286,19 +255,22 @@ class ApplicationsController extends Controller
             }
         }
 
+        if ($application->step <= 5) {
+            $application->step = 5;
+            $application->save();
+        }
+
         $files->update($updateData);
 
         return response()->json([
             'message' => 'Files updated successfully.',
-            'files' => $files,
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+
+    public function destroy(Application $application)
     {
-        //
+        $application->delete();
     }
 }

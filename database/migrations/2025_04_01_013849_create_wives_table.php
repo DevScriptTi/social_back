@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('wives', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('last');
-            $table->date('date_of_birth');
-            $table->string('place_of_birth');
-            $table->string('national_id_number')->unique();
-            $table->string('residence_place');
+            $table->string('name')->nullable();
+            $table->string('last')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->string('place_of_birth')->nullable();
+            $table->string('national_id_number')->unique()->nullable();
+            $table->string('residence_place')->nullable();
             $table->timestamps();
         });
     }

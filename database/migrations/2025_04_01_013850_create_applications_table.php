@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->enum('status', ['pending', 'denied', 'on-review', 'accepted', 'not-classed']);
+            $table->date('date')->nullable();
+            $table->enum('status', ['pending', 'denied', 'on-review', 'accepted', 'not-classed'])->default('pending');
             $table->string('classment')->nullable();
             $table->string('key', 10)->unique();
             $table->string('grade')->nullable();
             $table->text('description')->nullable();
+            $table->json('errors')->nullable();
+            $table->integer('step')->default(0);
             $table->timestamps();
         });
     }

@@ -34,7 +34,7 @@ return new class extends Migration
 
         // add_foreign_keys_to_applicants.php
         Schema::table('applicants', function (Blueprint $table) {
-            $table->foreignId('committee_id')->constrained('committees')->onDelete('cascade');
+            $table->foreignId('committee_id')->nullable()->constrained('committees')->onDelete('cascade');
         });
 
         // add_foreign_keys_to_wives.php
@@ -45,7 +45,7 @@ return new class extends Migration
         // add_foreign_keys_to_applications.php
         Schema::table('applications', function (Blueprint $table) {
             $table->foreignId('committee_id')->nullable()->constrained('committees')->onDelete('cascade');
-            $table->foreignId('applicant_id')->constrained('applicants')->onDelete('cascade');
+            $table->foreignId('applicant_id')->nullable()->constrained('applicants')->onDelete('cascade');
             $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('cascade');
         });
 

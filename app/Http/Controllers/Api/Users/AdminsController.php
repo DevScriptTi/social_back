@@ -19,7 +19,6 @@ class AdminsController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->paginate(6);
-
         return response()->json($admins);
     }
 
