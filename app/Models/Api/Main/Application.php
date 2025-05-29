@@ -41,15 +41,15 @@ class Application extends Model
         static::created(function ($application) {
             // Generate QR code image and store in public/qrcode
             $fileName = 'qrcode_' . $application->applicant->national_id_number . '.png';
-            // $filePath = public_path('qrcode/' . $fileName);
+            $filePath = public_path('qrcode/' . $fileName);
 
-            // // Ensure the directory exists
-            // if (!file_exists(public_path('qrcode'))) {
-            //     mkdir(public_path('qrcode'), 0755, true);
-            // }
+            // Ensure the directory exists
+            if (!file_exists(public_path('qrcode'))) {
+                mkdir(public_path('qrcode'), 0755, true);
+            }
 
-            // // Generate and save the QR code image
-            // QrCodeGenerator::format('png')->size(200)->generate($application->applicant->national_id_number, $filePath);
+            // Generate and save the QR code image
+            QrCodeGenerator::format('png')->size(200)->generate($application->applicant->national_id_number, $filePath);
 
             QrCode::create([
                 'value' => asset('qrcode/' . $fileName),
