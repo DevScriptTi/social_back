@@ -11,24 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // add_foreign_keys_to_dairas.php
-        Schema::table('dairas', function (Blueprint $table) {
-            $table->foreignId('wilaya_id')->constrained('wilayas')->onDelete('cascade');
-        });
+        
 
         // add_foreign_keys_to_users.php
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('key_id')->constrained('keys')->onDelete('cascade');
         });
 
-        // add_foreign_keys_to_committees.php
-        Schema::table('committees', function (Blueprint $table) {
-            $table->foreignId('daira_id')->constrained('dairas')->onDelete('cascade');
-        });
-
         // add_foreign_keys_to_employees.php
         Schema::table('employees', function (Blueprint $table) {
-            $table->foreignId('daira_id')->constrained('dairas')->onDelete('cascade');
             $table->foreignId('committee_id')->constrained('committees')->onDelete('cascade');
         });
 
@@ -47,6 +38,7 @@ return new class extends Migration
             $table->foreignId('committee_id')->nullable()->constrained('committees')->onDelete('cascade');
             $table->foreignId('applicant_id')->nullable()->constrained('applicants')->onDelete('cascade');
             $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('cascade');
+            $table->foreignId('social_id')->nullable()->constrained('socials')->onDelete('cascade');
         });
 
         // add_foreign_keys_to_professionals.php
@@ -80,7 +72,9 @@ return new class extends Migration
         });
 
         // add_foreign_keys_to_socials.php
-
+        Schema::table('socials', function (Blueprint $table) {
+            $table->foreignId('committee_id')->constrained('committees')->onDelete('cascade');
+        });
 
     }
 

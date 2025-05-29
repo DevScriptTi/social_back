@@ -144,7 +144,7 @@ class Application extends Model
             $socialGrade += 10;
         }
         $socialGrade += $this->applicant->children_number * 2;
-        if ($this->applicant->health->chronic_illness_disability == 'yes') {
+        if ($this->health->chronic_illness_disability == 'yes') {
             $socialGrade += 30;
         }
         $socialGrade += $this->calculateYearsPoints();

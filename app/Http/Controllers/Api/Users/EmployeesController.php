@@ -17,9 +17,6 @@ class EmployeesController extends Controller
     public function index(Request $request)
     {
         $query = Employee::with([
-            'daira',
-            'daira.wilaya',
-            'committee.daira.wilaya',
             'photo',
             'key.user'
         ])
@@ -39,7 +36,7 @@ class EmployeesController extends Controller
 
     public function show(Employee $employee)
     {
-        $employee->load(['daira', 'committee', 'photo', 'key.user']);
+        $employee->load(['photo', 'key.user']);
         return response()->json([
             'status' => 'success',
             'data' => $employee
@@ -52,8 +49,6 @@ class EmployeesController extends Controller
             'name' => 'required',
             'last' => 'required',
             'date_of_birth' => 'required|date',
-            'daira_id' => 'required|exists:dairas,id',
-            'committee_id' => 'sometimes|required|exists:committees,id'
         ]);
 
         // Generate username from name, last and random string
@@ -105,7 +100,6 @@ class EmployeesController extends Controller
             'name' => 'required',
             'last' => 'required',
             'date_of_birth' => 'required|date',
-            'daira_id' => 'required|exists:dairas,id',
             'committee_id' => 'sometimes|required|exists:committees,id'
         ]);
 

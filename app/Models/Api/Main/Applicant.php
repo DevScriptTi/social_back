@@ -13,8 +13,6 @@ class Applicant extends Model
         'gender', 'status', 'children_number', 'committee_id'
     ];
 
-
-
     public function application()
     {
         return $this->hasOne(Application::class);

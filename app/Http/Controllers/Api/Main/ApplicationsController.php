@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api\Main;
 use App\Http\Controllers\Controller;
 use App\Models\Api\Main\Applicant;
 use App\Models\Api\Main\Application;
-use App\Models\Api\Users\Committee;
+use App\Models\User;
 use FFI\Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ApplicationsController extends Controller
@@ -17,14 +18,23 @@ class ApplicationsController extends Controller
      */
     public function index()
     {
-        $query = Application::with(['applicant']);
+        $query = Application::with(['applicant'])->orderBy('created_at', 'desc');
 
         if (request()->query('national_id_number')) {
             $query->whereHas('applicant', function ($q) {
                 $q->where('national_id_number', request()->query('national_id_number'));
             });
         }
-        $applications = $query->paginate(6);
+
+        if (request()->query('status')) {
+            $query->where('status', request()->query('status'));
+        }
+
+        if (request()->query('sort') === 'grade') {
+            $query->orderBy('grade', request()->query('order', 'desc'));
+        }
+
+        $applications = $query->paginate(10);
         return response()->json([
             'applications' => $applications,
         ], 200);
@@ -33,12 +43,21 @@ class ApplicationsController extends Controller
 
     public function show(Application $application)
     {
-        $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']);
+        $application->load(['applicant' => ['wife', 'photo'],  'housing', 'files', 'health', 'professional', 'qrcode']);
         return response()->json([
             'application' => $application,
         ], 200);
     }
 
+    public function update(Application $application){
+        $application->calculateGrade();
+        $application->status = 'not-classed';
+        $application->save();
+        return response()->json([
+            'message' => 'Grade calculated successfully',
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
+        ], 200);
+    }
 
     public function store(Request $request)
     {
@@ -55,12 +74,15 @@ class ApplicationsController extends Controller
             ], 200);
         }
 
+        $validated['committee_id'] = 1;
+
         DB::beginTransaction();
         try {
             $applicant = Applicant::create($validated);
             $applicant->application()->create([
                 'date' => now(),
-                'key' =>  random_int(100000, 999999),
+                'key' =>  str()->random(10),
+                'committee_id' => 1,
             ]);
             $applicant->wife()->create();
             $applicant->application->health()->create();
@@ -94,7 +116,6 @@ class ApplicationsController extends Controller
             'gender' => 'required|in:male,female',
             'status' => 'required|in:single,married,divorced,widowed',
             'children_number' => 'required|integer|min:0|max:65535',
-            'committee_id' => 'sometimes|required|integer|exists:committees,id',
         ]);
         $wifeValidate = $request->validate([
             'wife.name' => 'sometimes|required|string|max:255',
@@ -111,7 +132,6 @@ class ApplicationsController extends Controller
             if ($application->step <= 1) {
                 $application->step = 1;
                 $application->errors = [];
-                $application->committee_id = $validated['committee_id'];
                 $application->save();
             }
 
@@ -136,7 +156,7 @@ class ApplicationsController extends Controller
         }
         return response()->json([
             'message' => 'تم تقديم الطلب بنجاح',
-            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 201);
     }
 
@@ -160,7 +180,7 @@ class ApplicationsController extends Controller
 
         return response()->json([
             'message' => 'Professional information updated successfully.',
-            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
@@ -182,7 +202,7 @@ class ApplicationsController extends Controller
 
         return response()->json([
             'message' => 'Housing information updated successfully.',
-            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
@@ -205,7 +225,7 @@ class ApplicationsController extends Controller
 
         return response()->json([
             'message' => 'Health information updated successfully.',
-            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
 
@@ -264,10 +284,9 @@ class ApplicationsController extends Controller
 
         return response()->json([
             'message' => 'Files updated successfully.',
-            'application' => $application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }
-
 
     public function destroy(Application $application)
     {

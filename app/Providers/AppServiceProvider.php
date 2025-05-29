@@ -34,7 +34,6 @@ class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 
         Relation::morphMap([
-            'super_admin' => SuperAdmin::class,
             'committee' => Committee::class,
             'employee' => Employee::class,
             'user' => User::class,

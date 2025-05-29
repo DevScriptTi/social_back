@@ -18,7 +18,6 @@ class Employee extends Model
         'name',
         'last',
         'date_of_birth',
-        'daira_id',
         'committee_id',
     ];
 
@@ -46,10 +45,7 @@ class Employee extends Model
     {
         return $this->hasMany(Application::class);
     }
-    public function daira()
-    {
-        return $this->belongsTo(Daira::class);
-    }
+   
 
     public function committee()
     {
