@@ -10,6 +10,8 @@ use FFI\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class ApplicationsController extends Controller
 {
@@ -18,7 +20,7 @@ class ApplicationsController extends Controller
      */
     public function index()
     {
-        $query = Application::with(['applicant'])->orderBy('created_at', 'desc');
+        $query = Application::with(['applicant']);
 
         if (request()->query('national_id_number')) {
             $query->whereHas('applicant', function ($q) {
@@ -32,6 +34,8 @@ class ApplicationsController extends Controller
 
         if (request()->query('sort') === 'grade') {
             $query->orderBy('grade', request()->query('order', 'desc'));
+        } else {
+            $query->orderBy('created_at', 'desc');
         }
 
         $applications = $query->paginate(10);
@@ -49,7 +53,8 @@ class ApplicationsController extends Controller
         ], 200);
     }
 
-    public function update(Application $application){
+    public function update(Application $application)
+    {
         $application->calculateGrade();
         $application->status = 'not-classed';
         $application->save();
@@ -70,7 +75,7 @@ class ApplicationsController extends Controller
         if ($applicant) {
             return response()->json([
                 'message' => 'applicant already exists',
-                'application' => $applicant->application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+                'application' => $applicant->application->load(['applicant' => ['wife', 'photo'],  'housing', 'files', 'health', 'professional', 'qrcode']),
             ], 200);
         }
 
@@ -99,7 +104,7 @@ class ApplicationsController extends Controller
         }
         return response()->json([
             'message' => 'تم تقديم الطلب بنجاح',
-            'application' => $applicant->application->load(['applicant' => ['wife', 'photo'], 'committee.daira.wilaya', 'housing', 'files', 'health', 'professional', 'qrcode']),
+            'application' => $applicant->application->load(['applicant' => ['wife', 'photo'],  'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 201);
     }
 
@@ -117,14 +122,17 @@ class ApplicationsController extends Controller
             'status' => 'required|in:single,married,divorced,widowed',
             'children_number' => 'required|integer|min:0|max:65535',
         ]);
-        $wifeValidate = $request->validate([
-            'wife.name' => 'sometimes|required|string|max:255',
-            'wife.last' => 'sometimes|required|string|max:255',
-            'wife.date_of_birth' => 'sometimes|required|date',
-            'wife.place_of_birth' => 'sometimes|required|string|max:255',
-            'wife.national_id_number' => 'sometimes|required|string|max:255',
-            'wife.residence_place' => 'sometimes|required|string|max:255',
-        ]);
+        $wifeValidate = null;
+        if ($request->has('wife') && $request->status == 'married') {
+            $wifeValidate = $request->validate([
+                'wife.name' => 'sometimes|required|string|max:255',
+                'wife.last' => 'sometimes|required|string|max:255',
+                'wife.date_of_birth' => 'sometimes|required|date',
+                'wife.place_of_birth' => 'sometimes|required|string|max:255',
+                'wife.national_id_number' => 'sometimes|required|string|max:255',
+                'wife.residence_place' => 'sometimes|required|string|max:255',
+            ]);
+        }
 
         DB::beginTransaction();
         try {
@@ -134,7 +142,6 @@ class ApplicationsController extends Controller
                 $application->errors = [];
                 $application->save();
             }
-
             if ($wifeValidate) {
                 $wife = $application->applicant->wife()->first();
                 $wife->update([
@@ -229,61 +236,63 @@ class ApplicationsController extends Controller
         ], 200);
     }
 
+
     public function files(Request $request, Application $application)
     {
-        $request->validate([
-            'birth_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'spouse_birth_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'family_individual_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'applicant_national_id' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'spouse_national_id' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'residence_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'employment_unemployment_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'spouse_employment_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'spouse_salary_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'applicant_salary_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'non_real_estate_ownership_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'medical_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'death_divorce_certificate' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        ]);
-
-
-        $files = $application->files;
-        $fields = [
-            'birth_certificate',
-            'spouse_birth_certificate',
-            'family_individual_certificate',
-            'applicant_national_id',
-            'spouse_national_id',
-            'residence_certificate',
-            'employment_unemployment_certificate',
-            'spouse_employment_certificate',
-            'spouse_salary_certificate',
-            'applicant_salary_certificate',
-            'non_real_estate_ownership_certificate',
-            'medical_certificate',
-            'death_divorce_certificate',
+        // Map field names to their corresponding file numbers
+        $fieldFileMap = [
+            'birth_certificate' => 'file1',
+            'spouse_birth_certificate' => 'file2',
+            'family_individual_certificate' => 'file3',
+            'applicant_national_id' => 'file4',
+            'spouse_national_id' => 'file5',
+            'residence_certificate' => 'file6',
+            'employment_unemployment_certificate' => 'file7',
+            'spouse_employment_certificate' => 'file8',
+            'spouse_salary_certificate' => 'file9',
+            'applicant_salary_certificate' => 'file10',
+            'non_real_estate_ownership_certificate' => 'file11',
+            'medical_certificate' => 'file12',
+            'death_divorce_certificate' => 'file13',
         ];
 
-        $updateData = [];
-        foreach ($fields as $field) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                $filename = uniqid() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('files', $filename, 'public');
-                $updateData[$field] = $path;
+        // Ensure directories exist
+        $sourceDir = public_path('filesCopy/');
+        $destinationDir = public_path('files/');
+
+        if (!File::exists($destinationDir)) {
+            File::makeDirectory($destinationDir, 0755, true);
+        }
+
+        // Process each file
+        $fileData = [];
+        foreach ($fieldFileMap as $field => $sourceFileBase) {
+            $sourceFile = $sourceDir . $sourceFileBase . '.webp';
+            $newFilename = $field . '_' . $application->key . '.webp';
+            $destinationFile = $destinationDir . $newFilename;
+
+            if (File::exists($sourceFile)) {
+                // Copy and rename the file
+                File::copy($sourceFile, $destinationFile);
+                $fileData[$field] = $newFilename;
+            } else {
+                \Log::warning("Source file not found: " . $sourceFile);
+                $fileData[$field] = null;
             }
         }
 
+        // Update application step if needed
         if ($application->step <= 5) {
             $application->step = 5;
+            $application->status = "on-review";
             $application->save();
         }
 
-        $files->update($updateData);
+        // Update files with the new filenames
+        $application->files->update($fileData);
 
         return response()->json([
-            'message' => 'Files updated successfully.',
+            'message' => 'Files copied and renamed successfully.',
             'application' => $application->load(['applicant' => ['wife', 'photo'], 'housing', 'files', 'health', 'professional', 'qrcode']),
         ], 200);
     }

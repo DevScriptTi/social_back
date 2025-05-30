@@ -33,7 +33,6 @@ Route::middleware(['guest:sanctum'])->group(function () {
     Route::post('applications/{application}/housing', [ApplicationsController::class, 'housing']);
     Route::post('applications/{application}/health', [ApplicationsController::class, 'health']);
     Route::post('applications/{application}/files', [ApplicationsController::class, 'files']);
-    
 });
 
 
