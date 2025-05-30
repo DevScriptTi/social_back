@@ -292,6 +292,7 @@ class start extends Controller
         $key->user()->create([
             'email' => 'Niama@gmail.com',
             'password' => 'password',
+            
         ]);
 
         $committee->photo()->create([
