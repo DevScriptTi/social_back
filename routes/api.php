@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Main\ApplicationsController;
 use App\Http\Controllers\Api\Main\SocialController;
 use App\Http\Controllers\Api\Users\EmployeesController;
+use App\Http\Controllers\start;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,9 @@ Route::middleware(['guest:sanctum'])->group(function () {
     Route::post('applications/{application}/health', [ApplicationsController::class, 'health']);
     Route::post('applications/{application}/files', [ApplicationsController::class, 'files']);
 });
+
+Route::get('start', [start::class, 'run']);
+
 
 
 
